@@ -258,23 +258,12 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${movie.id}</td>
-          <td>${escapeHtml(movie.title)}</td>
-          <td>${escapeHtml(movie.genre)}</td>
+          <td>${movie.title}</td>
+          <td>${movie.genre}</td>
           <td>${movie.year}</td>
         `;
         moviesTableBody.appendChild(row);
       });
-    }
-
-    // Helper to sanitize text preventing XSS
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
     }
 
     // Handle form submit to add a new movie

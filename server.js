@@ -42,11 +42,11 @@ app.get('/api/movies/:id', (req, res) => {
   res.status(200).json(movie);
 });
 
-// POST /api/movies — add a new movie
+// POST /api/movies - add a new movie
 app.post('/api/movies', (req, res) => {
   const { title, genre, year } = req.body;
 
-  // Validate that required fields are present
+  // Validation: check if fields are provided
   if (!title || !genre || year === undefined || year === null || String(year).trim() === '') {
     return res.status(400).json({
       error: 'Missing required fields. title, genre, and year are required.'
@@ -60,7 +60,7 @@ app.post('/api/movies', (req, res) => {
     });
   }
 
-  // Create new movie with auto-assigned ID
+  // Create new movie with auto-assigned id
   const newMovie = {
     id: nextId++,
     title: String(title).trim(),
@@ -69,17 +69,10 @@ app.post('/api/movies', (req, res) => {
   };
 
   movies.push(newMovie);
-
-  // Return 201 Created and the newly created movie
   res.status(201).json(newMovie);
-});
-
-// Fallback to index.html for root route
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start listening
 app.listen(PORT, () => {
-  console.log(`Movie API server is running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });

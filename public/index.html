@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Collection</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f5f7;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background-color: #ffffff;
+      width: 100%;
+      max-width: 850px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: #111;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 15px;
+    }
+
+    /* Form styling */
+    .form-section {
+      margin-bottom: 25px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .form-input {
+      flex: 1;
+      min-width: 160px;
+      height: 38px;
+      padding: 6px 12px;
+      border: 1px solid #767676;
+      border-radius: 2px;
+      font-size: 14px;
+      color: #222;
+      background-color: #fff;
+    }
+
+    .form-input:focus {
+      outline: 2px solid #0056b3;
+      border-color: #0056b3;
+    }
+
+    .btn {
+      height: 38px;
+      padding: 0 16px;
+      background-color: #efefef;
+      border: 1px solid #767676;
+      border-radius: 2px;
+      font-size: 14px;
+      color: #111;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .btn:hover {
+      background-color: #e5e5e5;
+    }
+
+    .btn:active {
+      background-color: #dcdcdc;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .status-success {
+      color: #111;
+    }
+
+    .status-error {
+      color: #d93025;
+    }
+
+    /* Movies list section */
+    .movies-section {
+      margin-top: 25px;
+    }
+
+    .load-btn-container {
+      margin-bottom: 15px;
+    }
+
+    /* Table styling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background-color: #eaeaea;
+      color: #222;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 14px;
+      border: 1px solid #e0e0e0;
+    }
+
+    td {
+      font-size: 14px;
+      padding: 10px 14px;
+      border: 1px solid #eaeaea;
+      color: #222;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    .col-id {
+      width: 12%;
+    }
+
+    .col-title {
+      width: 38%;
+    }
+
+    .col-genre {
+      width: 30%;
+    }
+
+    .col-year {
+      width: 20%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Movie Collection</h1>
+
+    <!-- Add Movie Section -->
+    <div class="form-section">
+      <h2>Add Movie</h2>
+      <form id="addMovieForm">
+        <div class="form-row">
+          <input 
+            type="text" 
+            id="title" 
+            class="form-input" 
+            placeholder="Title" 
+            required 
+          />
+          <input 
+            type="text" 
+            id="genre" 
+            class="form-input" 
+            placeholder="Genre" 
+            required 
+          />
+          <input 
+            type="number" 
+            id="year" 
+            class="form-input" 
+            placeholder="Year" 
+            required 
+          />
+          <button type="submit" class="btn">Add Movie</button>
+        </div>
+      </form>
+      <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <!-- Movies List Section -->
+    <div class="movies-section">
+      <h2>Movies</h2>
+      <div class="load-btn-container">
+        <button type="button" id="loadMoviesBtn" class="btn">Load Movies</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-id">ID</th>
+              <th class="col-title">Title</th>
+              <th class="col-genre">Genre</th>
+              <th class="col-year">Year</th>
+            </tr>
+          </thead>
+          <tbody id="moviesTableBody">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const addMovieForm = document.getElementById('addMovieForm');
+    const titleInput = document.getElementById('title');
+    const genreInput = document.getElementById('genre');
+    const yearInput = document.getElementById('year');
+    const statusMessage = document.getElementById('statusMessage');
+    const loadMoviesBtn = document.getElementById('loadMoviesBtn');
+    const moviesTableBody = document.getElementById('moviesTableBody');
+
+    // Function to fetch and display movies
+    async function loadMovies() {
+      try {
+        const response = await fetch('/api/movies');
+        if (!response.ok) {
+          throw new Error('Failed to retrieve movies');
+        }
+        const movies = await response.json();
+        renderTable(movies);
+      } catch (error) {
+        console.error('Error fetching movies:', error);
+        statusMessage.className = 'status-message status-error';
+        statusMessage.textContent = 'Could not load movies from server.';
+      }
+    }
+
+    // Function to render movies inside the table body
+    function renderTable(movies) {
+      moviesTableBody.innerHTML = '';
+      movies.forEach(movie => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${movie.id}</td>
+          <td>${escapeHtml(movie.title)}</td>
+          <td>${escapeHtml(movie.genre)}</td>
+          <td>${movie.year}</td>
+        `;
+        moviesTableBody.appendChild(row);
+      });
+    }
+
+    // Helper to sanitize text preventing XSS
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Handle form submit to add a new movie
+    addMovieForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = titleInput.value.trim();
+      const genre = genreInput.value.trim();
+      const year = yearInput.value.trim();
+
+      if (!title || !genre || !year) {
+        statusMessage.className = 'status-message status-error';
+        statusMessage.textContent = 'Please fill out all fields.';
+        return;
+      }
+
+      const movieData = {
+        title: title,
+        genre: genre,
+        year: parseInt(year, 10)
+      };
+
+      try {
+        const response = await fetch('/api/movies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(movieData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          // Success message matching the screenshot
+          statusMessage.className = 'status-message status-success';
+          statusMessage.textContent = 'Movie added successfully';
+
+          // Reset form inputs
+          titleInput.value = '';
+          genreInput.value = '';
+          yearInput.value = '';
+
+          // Refresh movie list
+          await loadMovies();
+        } else {
+          statusMessage.className = 'status-message status-error';
+          statusMessage.textContent = result.error || 'Failed to add movie.';
+        }
+      } catch (error) {
+        console.error('Error adding movie:', error);
+        statusMessage.className = 'status-message status-error';
+        statusMessage.textContent = 'Network error while adding movie.';
+      }
+    });
+
+    // Handle manual "Load Movies" button click
+    loadMoviesBtn.addEventListener('click', loadMovies);
+
+    // Initial load when the page opens
+    window.addEventListener('DOMContentLoaded', loadMovies);
+  </script>
+</body>
+</html>

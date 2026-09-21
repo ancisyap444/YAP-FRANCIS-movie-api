@@ -1,0 +1,15 @@
+{
+  "name": "movie-api",
+  "version": "1.0.0",
+  "description": "Simple Movie Collection REST API using Node.js and Express",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["node", "express", "rest-api", "movies"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

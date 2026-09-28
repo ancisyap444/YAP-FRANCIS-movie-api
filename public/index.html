@@ -3,327 +3,598 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Collection</title>
+  <title>MAX — Movie Collection API</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
+    :root {
+      --bg-dark: #080911;
+      --bg-surface: #101321;
+      --bg-card: #15192b;
+      --brand-gradient: linear-gradient(135deg, #002be7 0%, #7928ca 50%, #ff0080 100%);
+      --brand-glow: 0 0 25px rgba(121, 40, 202, 0.4);
+      --text-white: #ffffff;
+      --text-muted: #8b97b0;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --danger: #ff3b69;
+      --success: #00f090;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
     body {
-      background-color: #f4f5f7;
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 50px;
+    }
+
+    .navbar {
+      background: rgba(8, 9, 17, 0.95);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 16px 36px;
       display: flex;
-      justify-content: center;
-      padding: 40px 20px;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-logo {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .brand-badge {
+      background: var(--brand-gradient);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(121, 40, 202, 0.5);
+    }
+
+    .search-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 260px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 13.5px;
+      width: 100%;
+    }
+
+    .search-box i {
+      color: var(--text-muted);
+      font-size: 13px;
     }
 
     .container {
-      background-color: #ffffff;
-      width: 100%;
-      max-width: 850px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      padding: 40px;
+      max-width: 1180px;
+      margin: 30px auto;
+      padding: 0 20px;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 26px;
+    .form-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--brand-gradient);
+    }
+
+    .form-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .form-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
       font-weight: 700;
-      margin-bottom: 30px;
-      color: #111;
-    }
-
-    h2 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #111;
-      margin-bottom: 15px;
-    }
-
-    /* Form styling */
-    .form-section {
-      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .form-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1fr auto;
       gap: 12px;
-      flex-wrap: wrap;
+      align-items: center;
     }
 
     .form-input {
-      flex: 1;
-      min-width: 160px;
-      height: 38px;
-      padding: 6px 12px;
-      border: 1px solid #767676;
-      border-radius: 2px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #fff;
       font-size: 14px;
-      color: #222;
-      background-color: #fff;
+      outline: none;
+      transition: all 0.2s ease;
     }
 
     .form-input:focus {
-      outline: 2px solid #0056b3;
-      border-color: #0056b3;
+      border-color: #7928ca;
+      box-shadow: 0 0 12px rgba(121, 40, 202, 0.3);
     }
 
     .btn {
-      height: 38px;
-      padding: 0 16px;
-      background-color: #efefef;
-      border: 1px solid #767676;
-      border-radius: 2px;
+      padding: 12px 22px;
+      border-radius: 10px;
       font-size: 14px;
-      color: #111;
+      font-weight: 700;
       cursor: pointer;
-      transition: background-color 0.15s ease;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
-    .btn:hover {
-      background-color: #e5e5e5;
+    .btn-submit {
+      background: var(--brand-gradient);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(121, 40, 202, 0.4);
     }
 
-    .btn:active {
-      background-color: #dcdcdc;
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(121, 40, 202, 0.6);
     }
 
-    .status-message {
-      margin-top: 12px;
+    .btn-cancel {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      display: none;
+    }
+
+    .btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .status-alert {
+      margin-top: 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .status-alert.success {
+      display: block;
+      color: var(--success);
+    }
+
+    .status-alert.error {
+      display: block;
+      color: var(--danger);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
       font-weight: 700;
-      font-size: 14px;
-      min-height: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .status-success {
-      color: #111;
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
     }
 
-    .status-error {
-      color: #d93025;
+    .movie-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      position: relative;
     }
 
-    /* Movies list section */
-    .movies-section {
-      margin-top: 25px;
+    .movie-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(121, 40, 202, 0.5);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 20px rgba(121, 40, 202, 0.35);
     }
 
-    .load-btn-container {
-      margin-bottom: 15px;
+    .card-banner {
+      background: linear-gradient(135deg, #1c1335 0%, #0e111a 100%);
+      padding: 24px 20px;
+      position: relative;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    /* Table styling */
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
+    .card-icon {
+      font-size: 28px;
+      color: #9d4edd;
+      margin-bottom: 12px;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th {
-      background-color: #eaeaea;
-      color: #222;
-      font-size: 14px;
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
       font-weight: 700;
-      padding: 10px 14px;
-      border: 1px solid #e0e0e0;
+      color: #fff;
+      margin-bottom: 4px;
+      line-height: 1.25;
     }
 
-    td {
-      font-size: 14px;
-      padding: 10px 14px;
-      border: 1px solid #eaeaea;
-      color: #222;
+    .card-id {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: var(--text-muted);
     }
 
-    tr:nth-child(even) {
-      background-color: #fafafa;
+    .card-body {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1;
     }
 
-    .col-id {
-      width: 12%;
+    .genre-chip {
+      background: rgba(121, 40, 202, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(121, 40, 202, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
     }
 
-    .col-title {
-      width: 38%;
+    .year-chip {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 600;
     }
 
-    .col-genre {
-      width: 30%;
+    .card-footer {
+      padding: 12px 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 10px;
     }
 
-    .col-year {
-      width: 20%;
+    .btn-action {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-edit {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .btn-edit:hover {
+      background: #7928ca;
+    }
+
+    .btn-delete {
+      background: rgba(255, 59, 105, 0.15);
+      color: var(--danger);
+    }
+
+    .btn-delete:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .navbar {
+        padding: 14px 20px;
+      }
+      .search-box {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Movie Collection</h1>
+  <header class="navbar">
+    <div class="brand">
+      <span class="brand-logo">MAX</span>
+      <span class="brand-badge">MOVIE API</span>
+    </div>
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchInput" placeholder="Search title or genre..." />
+    </div>
+  </header>
 
-    <!-- Add Movie Section -->
-    <div class="form-section">
-      <h2>Add Movie</h2>
-      <form id="addMovieForm">
+  <main class="container">
+    <div class="form-card">
+      <div class="form-header">
+        <h2 id="formTitle" class="form-title">
+          <i class="fa-solid fa-film" style="color: #9d4edd;"></i>
+          <span>Add New Movie</span>
+        </h2>
+        <span id="formBadge" style="font-size: 12px; color: var(--text-muted);">MySQL Database</span>
+      </div>
+
+      <form id="movieForm">
+        <input type="hidden" id="movieId" />
+        
         <div class="form-row">
-          <input 
-            type="text" 
-            id="title" 
-            class="form-input" 
-            placeholder="Title" 
-            required 
-          />
-          <input 
-            type="text" 
-            id="genre" 
-            class="form-input" 
-            placeholder="Genre" 
-            required 
-          />
-          <input 
-            type="number" 
-            id="year" 
-            class="form-input" 
-            placeholder="Year" 
-            required 
-          />
-          <button type="submit" class="btn">Add Movie</button>
+          <input type="text" id="title" class="form-input" placeholder="Movie Title (e.g. Dune)" required />
+          <input type="text" id="genre" class="form-input" placeholder="Genre (e.g. Sci-Fi)" required />
+          <input type="number" id="year" class="form-input" placeholder="Year (e.g. 2024)" min="1888" max="2100" required />
+          
+          <div style="display: flex; gap: 8px;">
+            <button type="submit" id="submitBtn" class="btn btn-submit">
+              <i class="fa-solid fa-plus"></i>
+              <span id="submitBtnText">Add Movie</span>
+            </button>
+            <button type="button" id="cancelBtn" class="btn btn-cancel" onclick="resetForm()">
+              Cancel
+            </button>
+          </div>
         </div>
+
+        <div id="statusAlert" class="status-alert"></div>
       </form>
-      <div id="statusMessage" class="status-message"></div>
     </div>
 
-    <!-- Movies List Section -->
-    <div class="movies-section">
-      <h2>Movies</h2>
-      <div class="load-btn-container">
-        <button type="button" id="loadMoviesBtn" class="btn">Load Movies</button>
-      </div>
-
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th class="col-id">ID</th>
-              <th class="col-title">Title</th>
-              <th class="col-genre">Genre</th>
-              <th class="col-year">Year</th>
-            </tr>
-          </thead>
-          <tbody id="moviesTableBody">
-            <!-- Dynamic rows will be inserted here -->
-          </tbody>
-        </table>
-      </div>
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="fa-solid fa-clapperboard" style="color: #7928ca;"></i>
+        <span>Featured Collection</span>
+      </h3>
+      <span id="countText" style="color: var(--text-muted); font-size: 13px;">0 Movies</span>
     </div>
-  </div>
+
+    <div id="moviesGrid" class="movies-grid"></div>
+  </main>
 
   <script>
-    const addMovieForm = document.getElementById('addMovieForm');
+    let movies = [];
+    const movieForm = document.getElementById('movieForm');
+    const movieIdInput = document.getElementById('movieId');
     const titleInput = document.getElementById('title');
     const genreInput = document.getElementById('genre');
     const yearInput = document.getElementById('year');
-    const statusMessage = document.getElementById('statusMessage');
-    const loadMoviesBtn = document.getElementById('loadMoviesBtn');
-    const moviesTableBody = document.getElementById('moviesTableBody');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtnText = document.getElementById('submitBtnText');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const statusAlert = document.getElementById('statusAlert');
+    const searchInput = document.getElementById('searchInput');
 
-    // Function to fetch and display movies
     async function loadMovies() {
       try {
-        const response = await fetch('/api/movies');
-        if (!response.ok) {
-          throw new Error('Failed to retrieve movies');
-        }
-        const movies = await response.json();
-        renderTable(movies);
-      } catch (error) {
-        console.error('Error fetching movies:', error);
-        statusMessage.className = 'status-message status-error';
-        statusMessage.textContent = 'Could not load movies from server.';
+        const res = await fetch('/api/movies');
+        movies = await res.json();
+        renderMovies();
+      } catch (err) {
+        showStatus('Failed to load movies from MySQL database.', 'error');
       }
     }
 
-    // Function to render movies inside the table body
-    function renderTable(movies) {
-      moviesTableBody.innerHTML = '';
-      movies.forEach(movie => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${movie.id}</td>
-          <td>${movie.title}</td>
-          <td>${movie.genre}</td>
-          <td>${movie.year}</td>
-        `;
-        moviesTableBody.appendChild(row);
-      });
-    }
+    function renderMovies() {
+      const grid = document.getElementById('moviesGrid');
+      const countText = document.getElementById('countText');
+      const search = searchInput.value.toLowerCase().trim();
 
-    // Handle form submit to add a new movie
-    addMovieForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+      const filtered = movies.filter(m => 
+        m.title.toLowerCase().includes(search) || 
+        m.genre.toLowerCase().includes(search)
+      );
 
-      const title = titleInput.value.trim();
-      const genre = genreInput.value.trim();
-      const year = yearInput.value.trim();
+      countText.textContent = `${filtered.length} ${filtered.length === 1 ? 'Movie' : 'Movies'}`;
 
-      if (!title || !genre || !year) {
-        statusMessage.className = 'status-message status-error';
-        statusMessage.textContent = 'Please fill out all fields.';
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state">No movies found. Add one above!</div>`;
         return;
       }
 
+      grid.innerHTML = filtered.map(movie => `
+        <div class="movie-card">
+          <div class="card-banner">
+            <span class="card-id">#${movie.id}</span>
+            <div class="card-icon"><i class="fa-solid fa-film"></i></div>
+            <div class="card-title">${escapeHtml(movie.title)}</div>
+          </div>
+          <div class="card-body">
+            <span class="genre-chip">${escapeHtml(movie.genre)}</span>
+            <span class="year-chip">${movie.year}</span>
+          </div>
+          <div class="card-footer">
+            <button class="btn-action btn-edit" onclick="startEdit(${movie.id})">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            <button class="btn-action btn-delete" onclick="deleteMovie(${movie.id})">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    movieForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = movieIdInput.value;
       const movieData = {
-        title: title,
-        genre: genre,
-        year: parseInt(year, 10)
+        title: titleInput.value.trim(),
+        genre: genreInput.value.trim(),
+        year: parseInt(yearInput.value, 10)
       };
 
       try {
-        const response = await fetch('/api/movies', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(movieData)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          // Success message matching the screenshot
-          statusMessage.className = 'status-message status-success';
-          statusMessage.textContent = 'Movie added successfully';
-
-          // Reset form inputs
-          titleInput.value = '';
-          genreInput.value = '';
-          yearInput.value = '';
-
-          // Refresh movie list
-          await loadMovies();
+        let res;
+        if (id) {
+          res = await fetch(`/api/movies/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(movieData)
+          });
         } else {
-          statusMessage.className = 'status-message status-error';
-          statusMessage.textContent = result.error || 'Failed to add movie.';
+          res = await fetch('/api/movies', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(movieData)
+          });
         }
-      } catch (error) {
-        console.error('Error adding movie:', error);
-        statusMessage.className = 'status-message status-error';
-        statusMessage.textContent = 'Network error while adding movie.';
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+
+        showStatus(id ? 'Movie updated successfully!' : 'Movie added successfully!', 'success');
+        resetForm();
+        await loadMovies();
+      } catch (err) {
+        showStatus(err.message, 'error');
       }
     });
 
-    // Handle manual "Load Movies" button click
-    loadMoviesBtn.addEventListener('click', loadMovies);
+    function startEdit(id) {
+      const movie = movies.find(m => m.id === id);
+      if (!movie) return;
 
-    // Initial load when the page opens
+      movieIdInput.value = movie.id;
+      titleInput.value = movie.title;
+      genreInput.value = movie.genre;
+      yearInput.value = movie.year;
+
+      formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: #00f2fe;"></i><span>Edit Movie #${movie.id}</span>`;
+      submitBtnText.textContent = 'Update Movie';
+      cancelBtn.style.display = 'inline-flex';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      movieForm.reset();
+      movieIdInput.value = '';
+      formTitle.innerHTML = `<i class="fa-solid fa-film" style="color: #9d4edd;"></i><span>Add New Movie</span>`;
+      submitBtnText.textContent = 'Add Movie';
+      cancelBtn.style.display = 'none';
+    }
+
+    async function deleteMovie(id) {
+      if (!confirm('Are you sure you want to delete this movie?')) return;
+
+      try {
+        const res = await fetch(`/api/movies/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to delete');
+
+        showStatus('Movie deleted successfully.', 'success');
+        if (movieIdInput.value == id) resetForm();
+        await loadMovies();
+      } catch (err) {
+        showStatus(err.message, 'error');
+      }
+    }
+
+    function showStatus(msg, type) {
+      statusAlert.textContent = msg;
+      statusAlert.className = `status-alert ${type}`;
+      setTimeout(() => {
+        statusAlert.className = 'status-alert';
+      }, 3500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    searchInput.addEventListener('input', renderMovies);
     window.addEventListener('DOMContentLoaded', loadMovies);
   </script>
 </body>

@@ -1,78 +1,83 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
+require('dotenv').config();
+
+const { pool, initDB } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse incoming JSON payloads
+app.use(cors());
 app.use(express.json());
-
-// Serve static frontend files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// In-memory movie collection (temporary storage)
-let movies = [
-  { id: 1, title: 'Interstellar', genre: 'Science Fiction', year: 2014 },
-  { id: 2, title: 'Avengers: Endgame', genre: 'Action', year: 2019 },
-  { id: 3, title: 'Coco', genre: 'Animation', year: 2017 }
-];
-
-// Counter for auto-assigning IDs
-let nextId = 4;
-
-// GET /api/movies — retrieve all movies
-app.get('/api/movies', (req, res) => {
-  res.status(200).json(movies);
+app.get('/api/movies', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM movies ORDER BY id DESC');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// GET /api/movies/:id — retrieve one movie
-app.get('/api/movies/:id', (req, res) => {
-  const movieId = parseInt(req.params.id, 10);
-
-  if (isNaN(movieId)) {
-    return res.status(400).json({ error: 'Movie ID must be a number' });
+app.get('/api/movies/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM movies WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Movie not found' });
+    res.json(rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  const movie = movies.find(m => m.id === movieId);
-
-  if (!movie) {
-    return res.status(404).json({ error: 'Movie not found' });
-  }
-
-  res.status(200).json(movie);
 });
 
-// POST /api/movies - add a new movie
-app.post('/api/movies', (req, res) => {
+app.post('/api/movies', async (req, res) => {
   const { title, genre, year } = req.body;
-
-  // Validation: check if fields are provided
-  if (!title || !genre || year === undefined || year === null || String(year).trim() === '') {
-    return res.status(400).json({
-      error: 'Missing required fields. title, genre, and year are required.'
-    });
+  if (!title || !genre || !year) {
+    return res.status(400).json({ error: 'Title, genre, and year are required' });
   }
 
-  const parsedYear = parseInt(year, 10);
-  if (isNaN(parsedYear)) {
-    return res.status(400).json({
-      error: 'Year must be a valid number.'
-    });
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO movies (title, genre, year) VALUES (?, ?, ?)',
+      [title.trim(), genre.trim(), parseInt(year, 10)]
+    );
+    res.status(201).json({ id: result.insertId, title, genre, year: parseInt(year, 10) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  // Create new movie with auto-assigned id
-  const newMovie = {
-    id: nextId++,
-    title: String(title).trim(),
-    genre: String(genre).trim(),
-    year: parsedYear
-  };
-
-  movies.push(newMovie);
-  res.status(201).json(newMovie);
 });
 
-// Start listening
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.put('/api/movies/:id', async (req, res) => {
+  const { title, genre, year } = req.body;
+  if (!title || !genre || !year) {
+    return res.status(400).json({ error: 'Title, genre, and year are required' });
+  }
+
+  try {
+    const [result] = await pool.query(
+      'UPDATE movies SET title = ?, genre = ?, year = ? WHERE id = ?',
+      [title.trim(), genre.trim(), parseInt(year, 10), req.params.id]
+    );
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Movie not found' });
+    res.json({ id: Number(req.params.id), title, genre, year: parseInt(year, 10) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/movies/:id', async (req, res) => {
+  try {
+    const [result] = await pool.query('DELETE FROM movies WHERE id = ?', [req.params.id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Movie not found' });
+    res.json({ message: 'Movie deleted', id: req.params.id });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
 });

@@ -6,10 +6,18 @@
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": ["node", "express", "rest-api", "movies"],
+  "keywords": [
+    "node",
+    "express",
+    "rest-api",
+    "movies"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.2"
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^4.22.3",
+    "mysql2": "^3.24.4"
   }
 }
